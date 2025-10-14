@@ -1,34 +1,47 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Parametri
-N = 1000              # numero di campioni
-snr_db = 10           # rapporto segnale-rumore in dB
+def gaussian_channel(signal, noise_std):
+    """
+    Adds white Gaussian noise (AWGN) to a signal,
+    specifying the noise standard deviation.
 
-# Segnale di esempio (BPSK)
-x = np.random.choice([-1, 1], size=N)
+    Parameters:
+    -----------
+    signal : np.ndarray
+        Input signal.
+    noise_std : float
+        Standard deviation of the Gaussian noise.
 
-# Calcolo della potenza del segnale
-signal_power = np.mean(np.abs(x)**2)
+    Returns:
+    --------
+    noisy_signal : np.ndarray
+        Signal after passing through the Gaussian channel.
+    """
+    noise = np.random.normal(0, noise_std, size=signal.shape)
+    return signal + noise
 
-# Conversione SNR da dB a valore lineare
-snr_linear = 10**(snr_db/10)
+# Test signal
+t = np.linspace(0, 1, 1000)
+signal = np.sin(2 * np.pi * 5 * t)  # 5 Hz sine wave
 
-# Varianza del rumore
-noise_variance = signal_power / snr_linear
+# Nois Levels
+noise_levels = [0.05, 0.2, 0.5]  # low, medium, high noise
 
-# Generazione del rumore gaussiano
-noise = np.sqrt(noise_variance/2) * np.random.randn(N)
+# Generation of noisy signals
+noisy_signals = [gaussian_channel(signal, std) for std in noise_levels]
 
-# Segnale ricevuto (attraverso il canale AWGN)
-y = x + noise
+# Noisy signal plotting
+fig, axes = plt.subplots(3, 1, figsize=(12, 10), sharex=True)
 
-# Plot
-plt.figure(figsize=(10,5))
-plt.plot(y[:50], 'o-', label="Segnale ricevuto")
-plt.plot(x[:50], 's-', label="Segnale trasmesso")
-plt.legend()
-plt.title("Simulazione Canale AWGN")
-plt.xlabel("Campioni")
-plt.grid()
+for ax, noisy, std in zip(axes, noisy_signals, noise_levels):
+    ax.plot(t, signal, label='Original Signal', linewidth=2, color='black')
+    ax.plot(t, noisy, label=f'Noisy Signal σ = {std}', color='red', alpha=0.5)
+    ax.set_ylabel('Amplitude')
+    ax.set_title(f'Gaussian Channel with Noise σ = {std}')
+    ax.legend()
+    ax.grid(True)
+
+axes[-1].set_xlabel('Time [s]')
+plt.tight_layout()
 plt.show()
