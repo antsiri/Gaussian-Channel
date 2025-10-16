@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 def gaussian_channel(signal, noise_std):
     """
-    Adds white Gaussian noise (AWGN) to a signal,
+    Adds Gaussian noise to a signal,
     specifying the noise standard deviation.
 
     Parameters:
